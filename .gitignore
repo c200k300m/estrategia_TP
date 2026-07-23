@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.*
+
+# Estratégias reais de clientes — NUNCA commitar (repo público)
+fixtures/reais/
+
+# Config local do Claude Code
+.claude/settings.local.json
