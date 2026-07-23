@@ -1,0 +1,44 @@
+/* Estilos do app (landing, mensagens e admin) — complementa template.css */
+
+.msg-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.msg-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:36px;max-width:460px;width:100%;color:var(--text);box-shadow:0 12px 48px rgba(20,35,60,0.18)}
+.msg-card h1{font-family:var(--font-display);font-weight:800;font-size:1.4rem;color:var(--navy);margin-bottom:10px;letter-spacing:-.5px}
+.msg-card p{font-size:.95rem;line-height:1.6}
+.msg-card code{background:var(--bg);padding:2px 6px;border-radius:6px;font-size:.85em}
+
+.admin-login{display:flex;flex-direction:column;gap:14px}
+.admin-login label{display:flex;flex-direction:column;gap:6px;font-family:var(--font-display);font-weight:600;font-size:.8rem;color:var(--navy)}
+.admin-login input{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit;font-size:.95rem}
+.admin-login input:focus{outline:2px solid var(--blue);outline-offset:1px}
+
+.btn-primario{font-family:var(--font-display);font-weight:700;font-size:.85rem;background:var(--grad);color:#fff;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;box-shadow:0 4px 20px rgba(0,198,255,0.30)}
+.btn-primario:hover{transform:translateY(-1px)}
+.btn-fantasma{font-family:var(--font-display);font-weight:600;font-size:.85rem;background:none;border:1.5px solid var(--border);color:var(--navy);border-radius:10px;padding:9px 18px;cursor:pointer}
+.btn-fantasma:hover{border-color:var(--blue);color:var(--blue)}
+
+.admin{max-width:1200px;margin:0 auto;padding:24px 4% 48px}
+.admin-topo{display:flex;justify-content:space-between;align-items:center;padding:14px 0 22px}
+.admin-topo strong{font-family:var(--font-display);font-weight:700;color:#fff}
+.admin-topo .btn-fantasma{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.25)}
+.admin-corpo{display:grid;grid-template-columns:260px 1fr;gap:16px}
+@media(max-width:760px){.admin-corpo{grid-template-columns:1fr}}
+
+.admin-lista{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;align-self:start}
+.admin-lista ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.admin-lista li{display:flex;align-items:center;gap:6px}
+.admin-lista li button{flex:1;text-align:left;background:none;border:none;cursor:pointer;font:inherit;font-size:.9rem;color:var(--navy);font-weight:600;padding:8px 10px;border-radius:8px}
+.admin-lista li button:hover{background:var(--tint-09)}
+.admin-lista li a{color:var(--blue);text-decoration:none;font-weight:700}
+
+.admin-editor{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.admin-editor-topo{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+#editor-titulo{font-family:var(--font-display);font-weight:700;color:var(--navy)}
+#editor-link a{font-size:.8rem;color:var(--blue);word-break:break-all}
+.admin-editor textarea{min-height:420px;resize:vertical;border:1px solid var(--border);border-radius:12px;padding:14px;font:12.5px/1.5 ui-monospace,Consolas,monospace;color:var(--navy);background:var(--bg)}
+.admin-editor textarea:focus{outline:2px solid var(--blue);outline-offset:1px}
+.admin-acoes{display:flex;gap:10px;flex-wrap:wrap}
+.admin-erro{white-space:pre-wrap;background:#FFF4F2;border:1px solid #F3C4BC;color:#8C2F22;border-radius:10px;padding:12px 14px;font-size:.85rem;font-family:inherit}
+.admin-erro.ok{background:#EFFBF5;border-color:#BFE8D4;color:#0A6B45}
+
+.admin-preview{position:fixed;inset:0;overflow:auto;background:var(--navy-900);z-index:50;padding-top:56px}
+.admin-preview>#btn-fechar-preview{position:fixed;top:12px;right:16px;z-index:51}
