@@ -11,7 +11,7 @@ Ferramenta da Komplexa para publicar "index" de estratégia de mídia para clien
 3. A ferramenta valida, salva no Supabase e gera um link secreto.
 4. O cliente acessa a página renderizada no visual Komplexa (padrão dos HTMLs `estrategia-*.html`).
 
-**Estado atual: o app ainda não foi construído.** O repositório contém os artefatos de referência (HTMLs artesanais, skill com assets) e este blueprint. O plano de execução fechado, fase a fase, está em `PLANO.md` — segui-lo na ordem. Ao implementar, atualizar este arquivo com os comandos reais.
+**Estado atual: app construído (Fases 0–4 do PLANO.md).** Pendências que dependem do usuário: login no `gh` (criar repo público + push + habilitar Pages) e criação do projeto Supabase (`supabase/SETUP.md`) com preenchimento de `src/config.ts`. Depois disso: publicar as 3 estratégias reais pelo admin (Fase 5).
 
 **Dados sensíveis:** o repo é público. Estratégias reais de clientes (HTMLs e `.md` com verbas/keywords) NUNCA vão para o git — vivem em `fixtures/reais/` (git-ignorada) e no Supabase. A única fixture commitável é a fictícia `hotel-exemplo.md`.
 
@@ -60,4 +60,14 @@ Toda a lógica de distribuição de verba (60/40 default, frentes do Meta, camad
 
 ## Comandos
 
-Ainda não há código. Ao fazer o scaffold, registrar aqui: dev server, build, deploy do Pages e como rodar as migrações/políticas do Supabase.
+- `npm run dev` — dev server (rotas: `/`, `/admin`, `/e/{slug}`)
+- `npm run build` — type-check (`tsc --noEmit`) + build Vite em `dist/`
+- `npm run render -- fixtures/reais/<arquivo>.md [saida.html]` — valida e renderiza um `.md` para HTML standalone (modo dev/CLI, sem Supabase; saída default em `fixtures/out/`)
+- Deploy: push na `main` dispara `.github/workflows/deploy.yml` (build com `BASE_PATH=/estrategia-index/`, copia `index.html`→`404.html` para fallback SPA, publica no Pages)
+- Supabase: rodar `supabase/schema.sql` no SQL Editor uma única vez (passo a passo em `supabase/SETUP.md`); credenciais públicas em `src/config.ts`
+
+## Estrutura do código
+
+- `src/parser.ts` → extrai/parseia frontmatter · `src/validate.ts` → regras de validação (percentuais somam 100 etc.) · `src/render.ts` → renderização determinística (deriva R$, barras, numeração) · `src/view.ts` → parse+valida+renderiza num container · `src/main.ts` → router · `src/admin.ts` → painel de colar/publicar · `src/supabase.ts` → client + RPC pública
+- `src/styles/template.css` e `src/assets/logo.ts` são **gerados** dos assets canônicos em `.claude/skills/estrategia-index/` — mudanças de design começam lá e são copiadas para `src/`
+- Testes de regressão: `npm run render` nas 4 fixtures deve passar; os valores derivados devem bater com os HTMLs artesanais de `fixtures/reais/`
