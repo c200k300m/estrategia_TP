@@ -122,41 +122,22 @@ Proteção de marca entra dentro da Pesquisa quando o hotel já é buscado pelo 
 - Dados do onboarding aparecem refletidos no texto (objetivo nº 1, objeções, região histórica) — o cliente precisa se reconhecer no documento.
 - Headlines de criativos entre aspas; CTAs terminam com "→".
 
-## 7. Montagem técnica e publicação
+## 7. Saída: arquivo `.md` estruturado
 
-Manter **duas versões** sincronizadas a cada mudança:
+A estratégia é entregue como **`.md` com frontmatter YAML** seguindo o contrato em `docs/formato-estrategia.md` (na raiz do repo). Regras:
 
-1. **Body** — escrever/editar o miolo (conteúdo de `<body>`) num arquivo de trabalho no scratchpad.
-2. **Arquivo do projeto** — `estrategia-<cliente>.html` na raiz: DOCTYPE + head com `<link>` Google Fonts + `template.css` + body.
-3. **Arquivo do artifact** — `<title>` + `<style>` com `fonts-inline.css` + `template.css` + body, **sem** DOCTYPE/html/head/body (o artifact envolve sozinho).
-4. **Publicar** com o tool Artifact: favicon emoji fixo por cliente (🎣 pesca, 🏝️ praia, 🦷 odonto...), description de uma frase, `label` curto descrevendo a versão. **Republicar sempre no mesmo file_path para manter a URL.**
+- Todo o conteúdo estruturado vai no frontmatter; o corpo do arquivo é ignorado pelo renderizador (uso livre para notas de conversão).
+- **Escrever apenas percentuais — nunca valores em R$ derivados.** O renderizador calcula R$, barras, numeração de campanhas e subtotais.
+- Strings com `: ` ou iniciadas por aspas/caractere especial vão entre aspas no YAML.
+- Salvar em `fixtures/reais/<cliente>.md` (pasta git-ignorada — estratégias reais nunca vão ao repo público).
+- Exemplos de referência: `fixtures/reais/*.md` (reais) e `fixtures/hotel-exemplo.md` (fictícia, todos os módulos).
 
-Montagem via script (ajustar nomes):
-
-```python
-import re, pathlib
-src = pathlib.Path(r"<raiz do projeto>")
-style = pathlib.Path("<skill>/template.css").read_text(encoding="utf-8")
-fonts = pathlib.Path("<skill>/fonts-inline.css").read_text(encoding="utf-8")
-body  = pathlib.Path("<scratchpad>/cliente-body.html").read_text(encoding="utf-8")
-title = "Estratégia de Anúncios — <Cliente> · Komplexa <Unidade>"
-projeto = ("<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n<meta charset=\"UTF-8\">\n"
-  "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-  f"<title>{title}</title>\n"
-  "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n"
-  "<link href=\"https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n"
-  f"<style>{style}</style>\n</head>\n<body>\n{body}\n</body>\n</html>\n")
-(src / "estrategia-<cliente>.html").write_text(projeto, encoding="utf-8")
-artifact = f"<title>{title}</title>\n<style>\n{fonts}\n{style}\n</style>\n{body}"
-pathlib.Path("<scratchpad>/artifact-<cliente>.html").write_text(artifact, encoding="utf-8")
-```
-
-Limitações do artifact a avisar quando relevante: embeds externos (Instagram etc.) não carregam (CSP); links normais funcionam.
+**Publicação:** colar o `.md` no painel `/admin` da ferramenta (ou, enquanto a ferramenta não estiver no ar, gerar o HTML pelo modo dev do renderizador e publicar como artifact — ver README do app). O link do cliente é o `/e/{slug}` devolvido pelo admin.
 
 ## 8. Iteração — quando o usuário pedir mudanças
 
 Pedidos tipo "tira X", "muda o percentual de Y":
-1. Editar o body de trabalho (recalcular **todos** os valores derivados: R$, %, larguras das barras, numeração das campanhas, contagens no texto como "as três campanhas", subtotais citados em outras seções).
-2. Caçar referências pendentes — texto que apontava para a seção removida ("briefing abaixo") precisa ser ajustado.
-3. Reconstruir as duas versões e republicar no mesmo file_path (mesma URL).
+1. Editar o `.md` (só percentuais e textos — derivados são recalculados pelo renderizador; ainda assim revisar contagens escritas em prosa, como "as três campanhas" no `sub`).
+2. Caçar referências pendentes — texto que apontava para seção removida precisa ser ajustado.
+3. Revalidar (percentuais somando 100) e republicar no admin — o slug/link do cliente não muda.
 4. Responder com o link e um resumo curto do que mudou (tabela antes/agora quando for redistribuição de verba).
