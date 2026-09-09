@@ -16,6 +16,11 @@ function esc(s: string | number | undefined | null): string {
     .replaceAll('"', '&quot;')
 }
 
+/** Escapa para uso dentro de um atributo, preservando quebras de linha. */
+function escAttr(s: string): string {
+  return esc(s).replaceAll('\n', '&#10;')
+}
+
 function numWord(n: number, fem: boolean): string {
   const tabela = fem ? FEM : MASC
   return n < tabela.length ? tabela[n] : String(n)
@@ -60,6 +65,15 @@ function secaoCanal(
 
 // ─── Keywords ───
 
+const ICONE_COPIAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>'
+
+/** Texto que vai para a área de transferência: um termo por linha, entre aspas. */
+function textoParaCopiar(g: GrupoKeywords): string {
+  return g.termos
+    .map((t) => `"${t.endsWith('|exata') ? t.slice(0, -'|exata'.length) : t}"`)
+    .join('\n')
+}
+
 function pillsGrupo(g: GrupoKeywords, tipoDefault: 'frase' | 'exata' | 'negativa'): string {
   const pills = g.termos.map((termo) => {
     let tipo: string = g.tipo ?? tipoDefault
@@ -67,7 +81,9 @@ function pillsGrupo(g: GrupoKeywords, tipoDefault: 'frase' | 'exata' | 'negativa
     if (termo.endsWith('|exata')) { tipo = 'exata'; texto = termo.slice(0, -'|exata'.length) }
     return `<span class="kw-pill ${tipo}">${esc(texto)}</span>`
   })
-  return `<div class="kw-grupo-titulo">${esc(g.titulo)}</div><div class="kw-pills">${pills.join('')}</div>`
+  const copiar = `<button type="button" class="kw-copiar" data-copiar="${escAttr(textoParaCopiar(g))}"
+    title="Copiar as ${g.termos.length} palavras" aria-label="Copiar as palavras de ${esc(g.titulo)}">${ICONE_COPIAR}<span class="kw-copiar-txt">copiar</span></button>`
+  return `<div class="kw-grupo-head"><div class="kw-grupo-titulo">${esc(g.titulo)}</div>${copiar}</div><div class="kw-pills">${pills.join('')}</div>`
 }
 
 function campanhaKw(c: CampanhaKeywords, idx: number, verbaPesquisa: number, abertaDefault: boolean): string {
@@ -282,8 +298,35 @@ export function renderBody(e: Estrategia): string {
 }
 
 /** Liga o toggle de prévia (iframe do Instagram) nos botões [data-preview]. */
+/** Copia texto com fallback para contextos sem clipboard API (file://, http). */
+async function copiarTexto(texto: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(texto)
+    return
+  } catch {
+    const ta = document.createElement('textarea')
+    ta.value = texto
+    ta.setAttribute('readonly', '')
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0'
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    ta.remove()
+  }
+}
+
+function feedbackCopiado(btn: HTMLElement): void {
+  btn.classList.add('copiado')
+  setTimeout(() => btn.classList.remove('copiado'), 1600)
+}
+
 export function attachPreviewHandlers(root: HTMLElement): void {
   root.addEventListener('click', (ev) => {
+    const copiar = (ev.target as HTMLElement).closest<HTMLButtonElement>('button[data-copiar]')
+    if (copiar) {
+      void copiarTexto(copiar.dataset.copiar!).then(() => feedbackCopiado(copiar))
+      return
+    }
     const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('button[data-preview]')
     if (!btn) return
     const card = btn.closest('.cri-card')
@@ -318,6 +361,29 @@ export function renderPaginaCompleta(e: Estrategia, css: string): string {
 ${renderBody(e)}
 <script>
 document.addEventListener('click', function (ev) {
+  var cp = ev.target.closest ? ev.target.closest('button[data-copiar]') : null
+  if (cp) {
+    var texto = cp.getAttribute('data-copiar')
+    var marcar = function () {
+      cp.classList.add('copiado')
+      setTimeout(function () { cp.classList.remove('copiado') }, 1600)
+    }
+    var manual = function () {
+      var ta = document.createElement('textarea')
+      ta.value = texto
+      ta.setAttribute('readonly', '')
+      ta.style.cssText = 'position:fixed;top:-1000px;opacity:0'
+      document.body.appendChild(ta)
+      ta.select()
+      try { document.execCommand('copy') } catch (e) {}
+      ta.parentNode.removeChild(ta)
+      marcar()
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(marcar, manual)
+    } else manual()
+    return
+  }
   var btn = ev.target.closest ? ev.target.closest('button[data-preview]') : null
   if (!btn) return
   var card = btn.closest('.cri-card')
