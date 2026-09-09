@@ -67,7 +67,11 @@ function secaoCanal(
 
 const ICONE_COPIAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>'
 
-/** Texto que vai para a área de transferência: um termo por linha, entre aspas. */
+/**
+ * Texto que vai para a área de transferência: um termo por linha, entre aspas.
+ * Decisão do cliente: SEMPRE aspas, inclusive nos termos marcados como `exata`
+ * (que no Google Ads seriam [termo]). Não trocar por colchetes.
+ */
 function textoParaCopiar(g: GrupoKeywords): string {
   return g.termos
     .map((t) => `"${t.endsWith('|exata') ? t.slice(0, -'|exata'.length) : t}"`)
